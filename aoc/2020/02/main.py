@@ -1,36 +1,34 @@
 import os
 import re
+import typing
 
-POLICY_ONE_RE = re.compile(
-    r"^(?P<min>\d\d*)-(?P<max>\d\d*) (?P<char>[a-z]): (?P<password>[a-z]+)$",
+
+class Entry(typing.NamedTuple):
+    left: int
+    right: int
+    char: str
+    password: str
+
+
+HERE = os.path.abspath(os.path.dirname(__file__))
+INPUT_FP = os.path.join(HERE, "input.txt")
+ENTRY_RE = re.compile(
+    r"^(?P<left>\d\d*)-(?P<right>\d\d*) (?P<char>[a-z]): (?P<password>[a-z]+)$",
     re.MULTILINE,
 )
 
-POLICY_TWO_RE = re.compile(
-    r"^(?P<first_position>\d\d*)-(?P<second_position>\d\d*) (?P<char>[a-z]): (?P<password>[a-z]+)$",
-    re.MULTILINE,
-)
+with open(INPUT_FP, "r") as fp:
+    INPUT_DATA = fp.read()
 
-here = os.path.abspath(os.path.dirname(__file__))
-input_fp = os.path.join(here, "input.txt")
-
-with open(input_fp, "r") as fp:
-    CORRUPTED_PASSWORDS = fp.read()
-
-
-valid_passwords = []
-for line in POLICY_ONE_RE.finditer(CORRUPTED_PASSWORDS):
-    min_ = int(line.group("min"))
-    max_ = int(line.group("max"))
-    char = line.group("char")
-    pswd = line.group("password")
-
-    count = len([c for c in pswd if c == char])
-
-    if min_ <= count <= max_:
-        valid_passwords.append(pswd)
-
-print(f"policy 1 valid passwords found: {len(valid_passwords)}")
+ENTRIES = [
+    Entry(
+        left=int(line.group("left")),
+        right=int(line.group("right")),
+        char=line.group("char"),
+        password=line.group("password")
+    )
+    for line in ENTRY_RE.finditer(INPUT_DATA)
+]
 
 
 def safe_index(arr, index: int, default=None):
@@ -44,17 +42,26 @@ def xor(a, b):
     return bool(a) != bool(b)
 
 
+print("Part One")
+
 valid_passwords = []
-for line in POLICY_TWO_RE.finditer(CORRUPTED_PASSWORDS):
-    pos1 = int(line.group("first_position"))
-    pos2 = int(line.group("second_position"))
-    char = line.group("char")
-    pswd = line.group("password")
+for entry in ENTRIES:
+    count = len([c for c in entry.password if c == entry.char])
 
-    char1 = safe_index(pswd, pos1 - 1)
-    char2 = safe_index(pswd, pos2 - 1)
+    if entry.left <= count <= entry.right:
+        valid_passwords.append(entry.password)
 
-    if xor(char1 == char, char2 == char):
-        valid_passwords.append(pswd)
+print(f"valid passwords: {len(valid_passwords)}")
 
-print(f"policy 2 valid passwords found: {len(valid_passwords)}")
+
+print("Part Two")
+
+valid_passwords = []
+for entry in ENTRIES:
+    char1 = safe_index(entry.password, entry.left-1)
+    char2 = safe_index(entry.password, entry.right-1)
+
+    if xor(char1 == entry.char, char2 == entry.char):
+        valid_passwords.append(entry.password)
+
+print(f"valid passwords: {len(valid_passwords)}")
