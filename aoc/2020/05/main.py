@@ -12,7 +12,7 @@ COLUMNS = 8
 
 
 def one(iterable):
-    """Unwraps and assets single element iterable, else raises"""
+    """Unwraps and asserts single element iterable, else raises"""
     [thing] = list(iterable)
     return thing
 
