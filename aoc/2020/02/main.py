@@ -40,6 +40,10 @@ def safe_index(arr, index: int, default=None):
         return default
 
 
+def xor(a, b):
+    return bool(a) != bool(b)
+
+
 valid_passwords = []
 for line in POLICY_TWO_RE.finditer(CORRUPTED_PASSWORDS):
     pos1 = int(line.group("first_position"))
@@ -50,7 +54,7 @@ for line in POLICY_TWO_RE.finditer(CORRUPTED_PASSWORDS):
     char1 = safe_index(pswd, pos1 - 1)
     char2 = safe_index(pswd, pos2 - 1)
 
-    if (char1 == char) != (char2 == char):
+    if xor(char1 == char, char2 == char):
         valid_passwords.append(pswd)
 
 print(f"policy 2 valid passwords found: {len(valid_passwords)}")
