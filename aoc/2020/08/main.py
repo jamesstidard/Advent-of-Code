@@ -50,12 +50,12 @@ swaps = {
     "jmp": "nop",
 }
 candidates_positions = (
-    number for number, (instr, _) in enumerate(INSTRUCTIONS) if instr in swaps
+    number for number, (op, _) in enumerate(INSTRUCTIONS) if op in swaps
 )
 for position in candidates_positions:
-    instr, value = INSTRUCTIONS[position]
+    op, value = INSTRUCTIONS[position]
     permutation = list(INSTRUCTIONS)
-    permutation[position] = (swaps[instr], value)
+    permutation[position] = (swaps[op], value)
 
     try:
         accumulator = run(permutation)
