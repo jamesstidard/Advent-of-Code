@@ -29,15 +29,34 @@ for container in CONTAINER_BAG_RE.finditer(INPUT_DATA):
         contents[outer_name][name] = int(count)
 
 
-def unpack(bag):
+def unpack_bags(bag):
+    """
+    yields a bag name for every instance of bag contained
+    """
     children = contents.get(bag, {})
 
     for child, count in children.items():
-        yield child, count
-        yield from unpack(child)
+        for _ in range(count):
+            yield child
+            yield from unpack_bags(child)
+
+
+def unpack_types(bag):
+    """
+    yields a bag name for every type of bag contained
+    """
+    children = contents.get(bag, {})
+
+    for child, _ in children.items():
+        yield child
+        yield from unpack_types(child)
 
 
 def take_until(predicate, iterable):
+    """
+    take from interable up to, and including, when
+    the predicate is satisfied.
+    """
     for item in iterable:
         yield item
 
@@ -54,7 +73,7 @@ all_bags = list(contents.keys())
 contains_gold = []
 
 for bag in all_bags:
-    inner_bags = (name for name, _ in unpack(bag))
+    inner_bags = unpack_types(bag)
     inner_bags = take_until(is_gold, inner_bags)
     if SHINY_GOLD in set(inner_bags):
         contains_gold.append(bag)
@@ -63,15 +82,4 @@ print("count:", len(contains_gold))
 
 
 print("Part Two")
-
-
-def unpack_2(bag):
-    children = contents.get(bag, {})
-
-    for child, count in children.items():
-        for _ in range(count):
-            yield child
-            yield from unpack_2(child)
-
-
-print("count:", len(list(unpack_2(SHINY_GOLD))))
+print("count:", len(list(unpack_bags(SHINY_GOLD))))
