@@ -16,24 +16,24 @@ with open(INPUT_FP, "r") as fp:
     INPUT_DATA = fp.read()
 
 
-contents = {}
+CONTENTS = {}
 
 for container in CONTAINER_BAG_RE.finditer(INPUT_DATA):
     outer_name = container.group("name")
     inner_bags = container.group("inner_bags")
-    contents[outer_name] = {}
+    CONTENTS[outer_name] = {}
 
     for bag in INNER_BAGS_RE.finditer(inner_bags):
         name = bag.group("name")
         count = bag.group("count")
-        contents[outer_name][name] = int(count)
+        CONTENTS[outer_name][name] = int(count)
 
 
 def unpack_bags(bag):
     """
     yields a bag name for every instance of bag contained
     """
-    children = contents.get(bag, {})
+    children = CONTENTS.get(bag, {})
 
     for child, count in children.items():
         for _ in range(count):
@@ -45,7 +45,7 @@ def unpack_types(bag):
     """
     yields a bag name for every type of bag contained
     """
-    children = contents.get(bag, {})
+    children = CONTENTS.get(bag, {})
 
     for child, _ in children.items():
         yield child
@@ -69,7 +69,7 @@ def is_gold(bag):
 
 
 print("Part One")
-all_bags = list(contents.keys())
+all_bags = list(CONTENTS.keys())
 contains_gold = []
 
 for bag in all_bags:
